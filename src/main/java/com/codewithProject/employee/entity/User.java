@@ -1,6 +1,7 @@
 package com.codewithProject.employee.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Table(name = "users")
 public class User {
 
-    public static final Integer JWT_REFRESH_TOKEN_DURATION_IN_MILLIS = 24 * 60 * 60 * 1000; // 24 hours
+    public static final Integer JWT_REFRESH_TOKEN_DURATION_IN_MILLIS = 24 * 60 * 60 * 1000; 
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,9 +34,9 @@ public class User {
     private ZonedDateTime refreshTokenCreatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Employee> employees = new ArrayList<>();
 
-   
     public void addEmployee(Employee employee) {
         employees.add(employee);
         employee.setUser(this);
