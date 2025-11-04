@@ -3,6 +3,8 @@ package com.codewithProject.employee.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +31,20 @@ public class User {
 
     @Column(name = "REFRESH_TOKEN_CREATED_AT")
     private ZonedDateTime refreshTokenCreatedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Employee> employees = new ArrayList<>();
+
+   
+    public void addEmployee(Employee employee) {
+        employees.add(employee);
+        employee.setUser(this);
+    }
+
+    public void removeEmployee(Employee employee) {
+        employees.remove(employee);
+        employee.setUser(null);
+    }
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
