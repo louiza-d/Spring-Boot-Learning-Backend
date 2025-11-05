@@ -1,5 +1,6 @@
 package com.codewithProject.employee.config;
 
+import com.codewithProject.employee.security.TokenBlacklist;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,10 +28,12 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+    private final TokenBlacklist tokenBlacklist;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist) {
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @Bean
@@ -47,7 +50,7 @@ public class SecurityConfig {
 
         
         http.addFilterBefore(
-                new com.codewithProject.employee.security.JwtAuthenticationFilter(jwtUtil, userDetailsService),
+                new com.codewithProject.employee.security.JwtAuthenticationFilter(jwtUtil, userDetailsService, tokenBlacklist),
                 UsernamePasswordAuthenticationFilter.class);
 
         //System.out.println("SecurityConfig is loaded and configured");
