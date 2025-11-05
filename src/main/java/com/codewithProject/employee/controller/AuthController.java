@@ -1,6 +1,7 @@
 package com.codewithProject.employee.controller;
 
 import com.codewithProject.employee.entity.User;
+import com.codewithProject.employee.security.TokenBlacklist;
 import com.codewithProject.employee.service.AuthService;
 import com.codewithProject.employee.security.JwtUtil;
 import com.codewithProject.employee.service.CustomUserDetailsService;
@@ -45,11 +46,13 @@ public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final TokenBlacklist tokenBlacklist;
 
-    public AuthController(AuthService authService, JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+    public AuthController(AuthService authService, JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, TokenBlacklist tokenBlacklist) {
         this.authService = authService;
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @PostMapping("/register")
@@ -92,6 +95,18 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Email ou mot de passe incorrect"));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(name = "Authorization", required = false) String header) {
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            tokenBlacklist.add(token);
+            return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Aucun token fourni"));
         }
     }
 }
