@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Titre par défaut</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+<h1 th:text="${title}">Page d'accueil</h1>
+<p th:text="${message}">Ceci est un texte statique</p>
+</header>
+
+<main  style="text-align:center; margin-top:40px;" >
+<a href="http://localhost:3000/signin" class="start-btn">Start now</a>
+</main>
+</body>
+</html>
