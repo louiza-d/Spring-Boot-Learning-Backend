@@ -13,10 +13,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class EmployeeController {
+public class EmployeeController implements IEmployeeController {
 
     private final EmployeeService employeeService;
 
+    @Override
     @PostMapping("/employee")
     public Employee postEmployee(@RequestBody Employee employee) {
 
