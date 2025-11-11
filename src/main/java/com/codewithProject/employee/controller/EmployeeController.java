@@ -1,6 +1,5 @@
 package com.codewithProject.employee.controller;
 
-import com.codewithProject.employee.entity.Employee;
 import com.codewithProject.employee.request.EmployeeRequest;
 import com.codewithProject.employee.response.EmployeeResponse;
 import com.codewithProject.employee.response.ErrorResponse;
