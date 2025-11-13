@@ -103,4 +103,14 @@ public class AuthController implements IAuthController {
                     .body(new ErrorResponse(400, "Aucun token fourni", LocalDateTime.now()));
         }
     }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
+        var userOpt = authService.verifyUser(token);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400, "Token invalide ou expiré", LocalDateTime.now()));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("Compte vérifié avec succés, vous pouvez vous connecter"));
+    }
 }
