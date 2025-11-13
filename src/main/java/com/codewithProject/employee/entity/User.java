@@ -33,6 +33,15 @@ public class User {
     @Column(name = "REFRESH_TOKEN_CREATED_AT")
     private ZonedDateTime refreshTokenCreatedAt;
 
+    @Column(nullable = false)
+    private  boolean enabled = false;
+
+    @Column(name ="verification_Token")
+    private String verificationToken;
+
+    @Column(name = "token_expirarion")
+    private  ZonedDateTime tokenExpiration;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Employee> employees = new ArrayList<>();
