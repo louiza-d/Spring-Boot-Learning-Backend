@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class EmployeeController implements IEmployeeController {
 
     private final EmployeeService employeeService;
@@ -58,7 +60,7 @@ public class EmployeeController implements IEmployeeController {
     }
 
     @PatchMapping("/employee/{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable long id, @RequestBody @Valid  EmployeeRequest request) {
+    public ResponseEntity<?> updateEmployee(@PathVariable long id, @RequestBody @Valid EmployeeRequest request) {
         try {
             EmployeeResponse updatedEmployee = employeeService.updateEmployee(id, request);
             return ResponseEntity.ok(updatedEmployee);
@@ -69,4 +71,5 @@ public class EmployeeController implements IEmployeeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(400, e.getMessage(), LocalDateTime.now()));
         }
-} }
+    }
+}
