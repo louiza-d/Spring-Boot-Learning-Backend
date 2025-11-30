@@ -4,6 +4,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# .gitignore
+.env
+.env.local
+.env.*.local
+*.properties.local
+application-local.properties
+
 ### STS ###
 .apt_generated
 .classpath
