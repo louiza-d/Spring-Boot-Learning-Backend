@@ -1,6 +1,9 @@
 package com.codewithProject.employee.service;
 
 import com.codewithProject.employee.entity.User;
+import com.codewithProject.employee.exception.TokenExpiredException;
+import com.codewithProject.employee.exception.TokenInvalidException;
+import com.codewithProject.employee.exception.UserAlreadyExistsException;
 import com.codewithProject.employee.mapper.AuthMapper;
 import com.codewithProject.employee.repository.UserRepository;
 import com.codewithProject.employee.request.AuthRequest;
@@ -36,7 +39,7 @@ public class AuthService {
     public RegisterResponse registerUser(AuthRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("User already exists");
+            throw new UserAlreadyExistsException("User with email " + request.getEmail() + " already exists");
         }
 
         String encoded = passwordEncoder.encode(request.getPassword());
@@ -86,10 +89,10 @@ public class AuthService {
     //
     public VerifyEmailResponse verifyEmailToken(String token) {
         var user = userRepository.findByVerificationToken(token)
-                .orElseThrow(() -> new RuntimeException("Token invalide"));
+                .orElseThrow(() -> new TokenInvalidException("Invalid token"));
 
         if (user.getTokenExpiration().isBefore(ZonedDateTime.now())) {
-            throw new RuntimeException("Token expiré");
+            throw new TokenExpiredException("Token expired");
         }
 
         user.setEnabled(true);
