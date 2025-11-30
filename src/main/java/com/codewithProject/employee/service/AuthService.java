@@ -15,6 +15,10 @@ import com.codewithProject.employee.response.VerifyEmailResponse;
 import com.codewithProject.employee.security.JwtUtil;
 import com.codewithProject.employee.security.TokenBlacklist;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.codewithProject.employee.exception.UserNotFoundException;
+import com.codewithProject.employee.exception.UnauthorizedAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +31,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -49,19 +54,20 @@ public class AuthService {
         User user = authMapper.toUser(request, encoded, verificationToken, expiration);
 
         userRepository.save(user);
-
+        logger.info("Registered user {} - sending verification email", user.getEmail());
         emailService.sendVerificationEmail(user.getEmail(), verificationToken);
         return authMapper.toRegisterResponse(user);
     }
 
     //
     public LoginSuccessResponse loginUser(LoginRequest request) {
-
         var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
 
         if (!user.isEnabled()) {
-            throw new RuntimeException("Veuillez d'abord vérifier votre adress e-mail avant de vous connecter.");
+            logger.warn("User {} attempted login but email not verified", request.getEmail());
+            throw new UnauthorizedAccessException(
+                    "Veuillez d'abord vérifier votre adresse e-mail avant de vous connecter.");
         }
 
         authenticationManager.authenticate(
@@ -71,17 +77,19 @@ public class AuthService {
                 new org.springframework.security.core.userdetails.User(
                         user.getEmail(), user.getPassword(), List.of()));
 
+        logger.info("User {} authenticated successfully", user.getEmail());
         return authMapper.toLoginResponse(user, token);
     }
 
     // LOGOUT
     public MessageResponse logoutUser(String header) {
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new RuntimeException("Aucun token fourni");
+            throw new IllegalArgumentException("Aucun token fourni");
         }
 
         String token = header.substring(7);
         tokenBlacklist.add(token);
+        logger.info("Token blacklisted for logout");
 
         return new MessageResponse("Déconnexion réussie");
     }
@@ -99,6 +107,7 @@ public class AuthService {
         user.setVerificationToken(null);
         user.setTokenExpiration(null);
         userRepository.save(user);
+        logger.info("Email verified for user {}", user.getEmail());
 
         return authMapper.toVerifyEmailResponse(user);
     }
